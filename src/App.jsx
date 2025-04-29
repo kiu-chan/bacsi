@@ -22,7 +22,7 @@ function App() {
               );
             }
 
-            // Ngược lại sử dụng DefaultLayout
+            // Sử dụng layout được chỉ định hoặc mặc định là DefaultLayout
             const Layout = route.layout || DefaultLayout;
             return (
               <Route

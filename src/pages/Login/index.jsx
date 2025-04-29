@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 
 function Login() {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: 'test@gmail.com',
+    password: '123456',
     rememberMe: false,
     userType: 'doctor' // 'doctor' hoặc 'patient'
   });
