@@ -11,6 +11,7 @@ import PatientAppointments from '../pages/PatientDashboard/patientAppointments.j
 import PatientMedications from '../pages/PatientDashboard/patientMedications.jsx'; // Import trang đơn thuốc
 import PatientProfile from '../pages/PatientDashboard/patientProfile.jsx'; // Import trang hồ sơ cá nhân
 import PatientMessages from '../pages/PatientDashboard/patientMessages.jsx'; // Import trang tin nhắn
+import PatientHealth from '../pages/PatientDashboard/patientHealth.jsx'; // Import trang thông tin sức khỏe
 
 const publicRoutes = [
     { path: '/', component: Home },
@@ -23,6 +24,7 @@ const publicRoutes = [
     { path: '/patient/medications', component: PatientMedications, layout: PatientLayout }, // Thêm route cho trang đơn thuốc
     { path: '/patient/profile', component: PatientProfile, layout: PatientLayout }, // Thêm route cho trang hồ sơ cá nhân
     { path: '/patient/messages', component: PatientMessages, layout: PatientLayout }, // Thêm route cho trang tin nhắn
+    { path: '/patient/health', component: PatientHealth, layout: PatientLayout }, // Thêm route cho trang thông tin sức khỏe
 ];
 
 const privateRoutes = [
