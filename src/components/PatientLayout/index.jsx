@@ -1,13 +1,25 @@
 // src/components/Layout/PatientLayout/index.jsx
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 function PatientLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { signOut, userProfile } = useAuth();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  // Xử lý đăng xuất
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      console.log("Đăng xuất thành công");
+    } catch (error) {
+      console.error("Lỗi khi đăng xuất:", error);
+    }
   };
 
   // Danh sách menu cho bệnh nhân
@@ -65,11 +77,11 @@ function PatientLayout({ children }) {
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center">
             <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg border-2 border-blue-500">
-              N
+              {userProfile?.displayName ? userProfile.displayName.charAt(0) : 'N'}
             </div>
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">Nguyễn Văn A</p>
-              <p className="text-xs text-gray-500">Mã BN: BN-2023-045</p>
+              <p className="text-sm font-medium text-gray-900">{userProfile?.displayName || 'Nguyễn Văn A'}</p>
+              <p className="text-xs text-gray-500">Mã BN: {userProfile?.id ? `BN-${userProfile.id.toString().padStart(4, '0')}` : 'BN-2023-045'}</p>
             </div>
           </div>
         </div>
@@ -115,7 +127,10 @@ function PatientLayout({ children }) {
             Trợ giúp & Hỗ trợ
           </Link>
 
-          <button className="mt-2 flex items-center px-3 py-2 w-full text-sm font-medium text-red-600 hover:bg-red-50 rounded-md">
+          <button 
+            onClick={handleLogout}
+            className="mt-2 flex items-center px-3 py-2 w-full text-sm font-medium text-red-600 hover:bg-red-50 rounded-md"
+          >
             <svg className="w-5 h-5 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg>
@@ -181,11 +196,24 @@ function PatientLayout({ children }) {
 
                 {/* User menu */}
                 <div className="ml-3 relative">
-                  <Link to="/patient/profile" className="flex items-center focus:outline-none">
-                    <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm border border-gray-300">
-                      N
+                  <div className="flex items-center">
+                    <Link to="/patient/profile" className="focus:outline-none">
+                      <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm border border-gray-300">
+                        {userProfile?.displayName ? userProfile.displayName.charAt(0) : 'N'}
+                      </div>
+                    </Link>
+                    <div className="ml-2 hidden md:block">
+                      <button 
+                        onClick={handleLogout}
+                        className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center"
+                      >
+                        <span>Đăng xuất</span>
+                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                      </button>
                     </div>
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>

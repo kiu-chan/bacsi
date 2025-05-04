@@ -1,16 +1,22 @@
-// src/pages/Login/index.jsx
+// Cập nhật file: pages/Login/index.jsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Login() {
+  const { login, error: authError } = useAuth();
+  
   const [formData, setFormData] = useState({
-    email: 'test@gmail.com',
-    password: '123456',
+    email: '',
+    password: '',
     rememberMe: false,
     userType: 'doctor' // 'doctor' hoặc 'patient'
   });
 
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState('');
+  const [debugInfo, setDebugInfo] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -54,15 +60,49 @@ function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoginError('');
+    setDebugInfo(null);
     
     if (validateForm()) {
-      // Xử lý đăng nhập
-      console.log('Đăng nhập với:', formData);
-      
-      // Ở đây sẽ gọi API đăng nhập thực tế
-      alert(`Đăng nhập thành công với vai trò ${formData.userType === 'doctor' ? 'Bác sĩ' : 'Bệnh nhân'}`);
+      try {
+        setLoading(true);
+        console.log("Đang đăng nhập với:", formData.email, formData.password);
+        
+        // Gọi hàm đăng nhập từ context
+        const result = await login(formData.email, formData.password);
+        console.log("Kết quả đăng nhập:", result);
+        
+        setDebugInfo({
+          success: true,
+          message: "Đăng nhập thành công! Vui lòng đợi chuyển hướng...",
+          user: result.user?.uid,
+          profile: result.profile,
+        });
+        
+        // Chú ý: Không cần redirect ở đây vì đã xử lý trong AuthContext
+      } catch (error) {
+        console.error("Lỗi đăng nhập:", error);
+        
+        setDebugInfo({
+          success: false,
+          message: "Đăng nhập thất bại",
+          error: error.message,
+          code: error.code
+        });
+        
+        // Hiển thị lỗi từ Firebase
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+          setLoginError('Email hoặc mật khẩu không chính xác');
+        } else if (error.code === 'auth/too-many-requests') {
+          setLoginError('Quá nhiều lần đăng nhập không thành công. Vui lòng thử lại sau.');
+        } else {
+          setLoginError('Đăng nhập không thành công. Vui lòng thử lại. ' + error.message);
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -84,6 +124,27 @@ function Login() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow-sm sm:rounded-lg sm:px-10">
+          {/* Hiển thị lỗi đăng nhập nếu có */}
+          {loginError && (
+            <div className="mb-4 bg-red-50 p-3 rounded-md">
+              <p className="text-sm text-red-600">{loginError}</p>
+            </div>
+          )}
+
+          {/* Debug Info nếu có */}
+          {debugInfo && (
+            <div className={`mb-4 p-3 rounded-md ${debugInfo.success ? 'bg-green-50' : 'bg-yellow-50'}`}>
+              <p className={`text-sm ${debugInfo.success ? 'text-green-600' : 'text-yellow-600'}`}>
+                {debugInfo.message}
+              </p>
+              {debugInfo.success && debugInfo.profile && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Vai trò: {debugInfo.profile.role || 'Không xác định'}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* User Type Selection */}
           <div className="mb-6">
             <div className="flex justify-center">
@@ -190,32 +251,13 @@ function Login() {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                disabled={loading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
               >
-                Đăng nhập
+                {loading ? 'Đang xử lý...' : 'Đăng nhập'}
               </button>
             </div>
           </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Hoặc</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <p className="text-center text-sm text-gray-600">
-                Chưa có tài khoản?{' '}
-                <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                  Đăng ký ngay
-                </Link>
-              </p>
-            </div>
-          </div>
 
           {/* Thông tin hướng dẫn */}
           <div className="mt-6 bg-blue-50 p-3 rounded-md">

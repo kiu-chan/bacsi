@@ -1,13 +1,27 @@
 // src/components/Layout/DoctorLayout/index.jsx
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 function DoctorLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { signOut, userProfile } = useAuth();
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+  };
+
+  // Xử lý đăng xuất
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Không cần chuyển hướng ở đây vì đã xử lý trong AuthContext
+      console.log("Đăng xuất thành công");
+    } catch (error) {
+      console.error("Lỗi khi đăng xuất:", error);
+    }
   };
 
   // Danh sách menu cho bác sĩ
@@ -70,8 +84,8 @@ function DoctorLayout({ children }) {
               className="h-10 w-10 rounded-full border-2 border-blue-500" 
             />
             <div className="ml-3">
-              <p className="text-sm font-medium text-gray-900">TS. BS. Nguyễn Văn X</p>
-              <p className="text-xs text-gray-500">Khoa Giải phẫu bệnh</p>
+              <p className="text-sm font-medium text-gray-900">{userProfile?.displayName || "TS. BS. Nguyễn Văn X"}</p>
+              <p className="text-xs text-gray-500">{userProfile?.specialty || "Khoa Giải phẫu bệnh"}</p>
             </div>
           </div>
         </div>
@@ -117,7 +131,10 @@ function DoctorLayout({ children }) {
             Trợ giúp & Hỗ trợ
           </Link>
 
-          <button className="mt-2 flex items-center px-3 py-2 w-full text-sm font-medium text-red-600 hover:bg-red-50 rounded-md">
+          <button 
+            onClick={handleLogout}
+            className="mt-2 flex items-center px-3 py-2 w-full text-sm font-medium text-red-600 hover:bg-red-50 rounded-md"
+          >
             <svg className="w-5 h-5 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg>
@@ -175,13 +192,24 @@ function DoctorLayout({ children }) {
 
                 {/* User menu */}
                 <div className="ml-3 relative">
-                  <button className="flex items-center focus:outline-none">
+                  <div className="flex items-center">
                     <img 
                       src="/api/placeholder/32/32" 
                       alt="User profile" 
                       className="h-8 w-8 rounded-full border border-gray-300"
                     />
-                  </button>
+                    <div className="ml-2 hidden md:block">
+                      <button 
+                        onClick={handleLogout}
+                        className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center"
+                      >
+                        <span>Đăng xuất</span>
+                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
