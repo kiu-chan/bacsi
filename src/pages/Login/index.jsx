@@ -1,4 +1,4 @@
-// Cập nhật file: pages/Login/index.jsx
+// pages/Login/index.jsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,8 +9,7 @@ function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    rememberMe: false,
-    userType: 'doctor' // 'doctor' hoặc 'patient'
+    rememberMe: false
   });
 
   const [loading, setLoading] = useState(false);
@@ -32,13 +31,6 @@ function Login() {
         [name]: ''
       });
     }
-  };
-
-  const handleUserTypeChange = (type) => {
-    setFormData({
-      ...formData,
-      userType: type
-    });
   };
 
   const validateForm = () => {
@@ -145,36 +137,6 @@ function Login() {
             </div>
           )}
 
-          {/* User Type Selection */}
-          <div className="mb-6">
-            <div className="flex justify-center">
-              <div className="bg-blue-50 rounded-lg inline-flex p-1">
-                <button
-                  type="button"
-                  className={`px-4 py-1 text-sm rounded-md transition ${
-                    formData.userType === 'doctor'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-blue-600'
-                  }`}
-                  onClick={() => handleUserTypeChange('doctor')}
-                >
-                  Bác sĩ
-                </button>
-                <button
-                  type="button"
-                  className={`px-4 py-1 text-sm rounded-md transition ${
-                    formData.userType === 'patient'
-                      ? 'bg-blue-500 text-white'
-                      : 'text-blue-600'
-                  }`}
-                  onClick={() => handleUserTypeChange('patient')}
-                >
-                  Bệnh nhân
-                </button>
-              </div>
-            </div>
-          </div>
-
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -259,12 +221,21 @@ function Login() {
             </div>
           </form>
 
+          {/* Thêm phần đăng ký với hiệu ứng nhấn mạnh */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Chưa có tài khoản?{' '}
+              <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                Đăng ký ngay
+              </Link>
+            </p>
+          </div>
+
           {/* Thông tin hướng dẫn */}
           <div className="mt-6 bg-blue-50 p-3 rounded-md">
             <h3 className="text-xs font-medium text-blue-800">Lưu ý</h3>
             <p className="mt-1 text-xs text-blue-700">
-              Bệnh nhân có thể đăng nhập để xem kết quả phân tích mô học và theo dõi tiến trình điều trị.
-              Bác sĩ có thể truy cập toàn bộ chức năng phân tích và quản lý hồ sơ bệnh nhân.
+              Hệ thống MoHist phục vụ cả bác sĩ và bệnh nhân. Bác sĩ có thể phân tích và quản lý hồ sơ bệnh nhân, trong khi bệnh nhân có thể theo dõi kết quả phân tích và tiến trình điều trị.
               Nếu bạn gặp vấn đề khi đăng nhập, vui lòng liên hệ hỗ trợ kỹ thuật qua email: support@mohist.vn
             </p>
           </div>
