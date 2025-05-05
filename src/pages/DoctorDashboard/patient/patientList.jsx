@@ -1,12 +1,12 @@
 // src/pages/DoctorDashboard/patientList.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { 
   getDoctorPatients, 
   filterPatientsByStatus, 
   searchPatients 
-} from '../../firebase/services/patientService';
+} from '../../../firebase/services/patientService';
 
 function PatientList() {
   const { currentUser, userProfile } = useAuth();

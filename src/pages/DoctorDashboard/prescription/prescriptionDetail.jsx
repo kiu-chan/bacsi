@@ -1,14 +1,14 @@
 // src/pages/DoctorDashboard/prescriptionDetail.jsx
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { 
   getPatientDetail 
-} from '../../firebase/services/patientService';
+} from '../../../firebase/services/patientService';
 import { 
   getPrescriptionDetail,
   updatePrescriptionStatus 
-} from '../../firebase/services/medicationService';
+} from '../../../firebase/services/medicationService';
 
 function PrescriptionDetail() {
   const { patientId, prescriptionId } = useParams();

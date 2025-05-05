@@ -1,9 +1,9 @@
 // src/pages/DoctorDashboard/patientDetail.jsx
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { getPatientDetail, updatePatientInfo, unlinkPatientFromDoctor } from '../../firebase/services/patientService';
-import { getPrescriptionDetail } from '../../firebase/services/medicationService';
+import { useAuth } from '../../../contexts/AuthContext';
+import { getPatientDetail, updatePatientInfo, unlinkPatientFromDoctor } from '../../../firebase/services/patientService';
+import { getPrescriptionDetail } from '../../../firebase/services/medicationService';
 
 function PatientDetail() {
   const { patientId } = useParams();

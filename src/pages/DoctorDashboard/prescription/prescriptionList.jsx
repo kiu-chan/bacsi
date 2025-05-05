@@ -1,9 +1,9 @@
 // src/pages/DoctorDashboard/prescriptionList.jsx
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { getPatientDetail } from '../../firebase/services/patientService';
-import { getPatientPrescriptions, deletePrescription } from '../../firebase/services/medicationService';
+import { useAuth } from '../../../contexts/AuthContext';
+import { getPatientDetail } from '../../../firebase/services/patientService';
+import { getPatientPrescriptions, deletePrescription } from '../../../firebase/services/medicationService';
 
 function PrescriptionList() {
   const { patientId } = useParams();

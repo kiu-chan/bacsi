@@ -1,8 +1,8 @@
 // src/pages/DoctorDashboard/newPatient.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { createNewPatient } from '../../firebase/services/patientService';
+import { useAuth } from '../../../contexts/AuthContext';
+import { createNewPatient } from '../../../firebase/services/patientService';
 
 function NewPatient() {
   const { currentUser, userProfile } = useAuth();

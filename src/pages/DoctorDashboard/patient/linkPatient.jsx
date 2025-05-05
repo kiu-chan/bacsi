@@ -1,10 +1,10 @@
 // src/pages/DoctorDashboard/linkPatient.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { linkPatientToDoctor } from '../../firebase/services/patientService';
+import { useAuth } from '../../../contexts/AuthContext';
+import { linkPatientToDoctor } from '../../../firebase/services/patientService';
 import { getDoc, doc } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { db } from '../../../firebase/config';
 
 function LinkPatient() {
   const { currentUser, userProfile } = useAuth();
@@ -31,7 +31,7 @@ function LinkPatient() {
       // Tìm kiếm user theo email (trong thực tế, bạn cần tạo một cloud function để làm việc này vì Firestore không hỗ trợ tìm kiếm theo field không phải là index)
       // Giả lập: Kiểm tra email trong collection users
       // Lưu ý: Đây chỉ là mã giả, trong thực tế cần triển khai cloud function
-      const usersCollection = await import('../../firebase/services/userService');
+      const usersCollection = await import('../../../firebase/services/userService');
       const user = await usersCollection.getUserByEmail(email);
 
       if (user) {
