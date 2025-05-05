@@ -5,6 +5,10 @@ import Unauthorized from '../pages/Unauthorized';
 import DoctorDashboard from '../pages/DoctorDashboard';
 import PatientDashboard from '../pages/PatientDashboard';
 import PatientList from '../pages/DoctorDashboard/patient/patientList.jsx';
+
+import SampleList from '../pages/DoctorDashboard/sample/sampleList.jsx';
+import SampleDetail from '../pages/DoctorDashboard/sample/sampleDetail.jsx';
+
 import NewPatient from '../pages/DoctorDashboard/patient/newPatient.jsx';
 import LinkPatient from '../pages/DoctorDashboard/patient/linkPatient.jsx';
 import PatientDetail from '../pages/DoctorDashboard/patient/patientDetail.jsx';
@@ -69,6 +73,16 @@ const doctorRoutes = [
         path: '/doctor/patients/:patientId/prescriptions/:prescriptionId',
         component: PrescriptionDetail,
         layout: DoctorLayout
+    },
+    { 
+        path: '/doctor/samples', 
+        component: SampleList,
+        layout: DoctorLayout 
+    },
+    {
+      path: '/doctor/samples/:sampleId',
+      component: SampleDetail,
+      layout: DoctorLayout
     },
 ];
 
