@@ -546,6 +546,15 @@ function PatientDetail() {
                       Kê đơn thuốc
                     </Link>
                     <Link
+                      to={`/doctor/patients/${patientId}/prescriptions`}
+                      className="bg-yellow-600 text-white text-sm font-medium py-2 px-3 rounded-md hover:bg-yellow-700 transition flex items-center justify-center"
+                    >
+                      <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Xem đơn thuốc
+                    </Link>
+                    <Link
                       to={`/doctor/patients/${patientId}/appointments`}
                       className="bg-green-600 text-white text-sm font-medium py-2 px-3 rounded-md hover:bg-green-700 transition flex items-center justify-center"
                     >
@@ -567,7 +576,7 @@ function PatientDetail() {
                       className="bg-blue-100 text-blue-600 text-sm font-medium py-2 px-3 rounded-md hover:bg-blue-200 transition flex items-center justify-center"
                       onClick={() => window.location = `mailto:${patient.email}`}
                     >
-                      <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                       Gửi email
@@ -580,7 +589,6 @@ function PatientDetail() {
             {/* Medical Records & History */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-800"></h3>
                 <h3 className="text-lg font-medium text-gray-800">Lịch sử y tế</h3>
                 <Link
                   to={`/doctor/patients/${patientId}/history`}

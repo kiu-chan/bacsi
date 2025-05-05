@@ -8,6 +8,9 @@ import PatientList from '../pages/DoctorDashboard/patientList.jsx';
 import NewPatient from '../pages/DoctorDashboard/newPatient.jsx';
 import LinkPatient from '../pages/DoctorDashboard/linkPatient.jsx';
 import PatientDetail from '../pages/DoctorDashboard/patientDetail.jsx';
+import PrescribeMedication from '../pages/DoctorDashboard/prescribeMedication.jsx';
+import PrescriptionList from '../pages/DoctorDashboard/prescriptionList.jsx';
+import PrescriptionDetail from '../pages/DoctorDashboard/prescriptionDetail.jsx';
 import DoctorLayout from '../components/DoctorLayout';
 import PatientLayout from '../components/PatientLayout';
 import PatientTestResults from '../pages/PatientDashboard/patientTestResults.jsx';
@@ -49,6 +52,22 @@ const doctorRoutes = [
     {
         path: '/doctor/patients/:patientId',
         component: PatientDetail,
+        layout: DoctorLayout
+    },
+    // Thêm routes mới cho kê đơn thuốc
+    {
+        path: '/doctor/patients/:patientId/prescribe',
+        component: PrescribeMedication,
+        layout: DoctorLayout
+    },
+    {
+        path: '/doctor/patients/:patientId/prescriptions',
+        component: PrescriptionList,
+        layout: DoctorLayout
+    },
+    {
+        path: '/doctor/patients/:patientId/prescriptions/:prescriptionId',
+        component: PrescriptionDetail,
         layout: DoctorLayout
     },
 ];
