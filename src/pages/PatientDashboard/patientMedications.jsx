@@ -1,197 +1,90 @@
-// src/pages/PatientMedications/index.jsx
+// src/pages/PatientDashboard/patientMedications.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-// Dữ liệu giả
-const patientInfo = {
-  id: "BN-2023-045",
-  name: "Nguyễn Văn A",
-  age: 45,
-  gender: "Nam",
-  phone: "0901234567",
-  email: "nguyenvana@email.com",
-  address: "123 Đường Lê Lợi, Quận 1, TP.HCM",
-  doctorName: "TS. BS. Trần Văn B",
-  department: "Khoa Ung bướu"
-};
-
-const allMedications = [
-  {
-    id: 1,
-    prescriptionId: "DT-2025-042",
-    date: "26/04/2025",
-    doctorName: "TS. BS. Trần Văn B",
-    department: "Khoa Ung bướu",
-    diagnosis: "Viêm phế quản cấp",
-    status: "Đang sử dụng",
-    expiryDate: "10/05/2025",
-    medications: [
-      {
-        name: "Paracetamol",
-        dosage: "500mg",
-        frequency: "3 lần/ngày",
-        duration: "7 ngày",
-        instructions: "Uống sau khi ăn"
-      },
-      {
-        name: "Amoxicillin",
-        dosage: "250mg",
-        frequency: "2 lần/ngày",
-        duration: "7 ngày",
-        instructions: "Uống trước khi ăn 30 phút"
-      },
-      {
-        name: "Bromhexine",
-        dosage: "8mg",
-        frequency: "3 lần/ngày",
-        duration: "5 ngày",
-        instructions: "Uống sau khi ăn"
-      }
-    ]
-  },
-  {
-    id: 2,
-    prescriptionId: "DT-2025-036",
-    date: "15/04/2025",
-    doctorName: "BS. Lê Thị C",
-    department: "Khoa Nội tiết",
-    diagnosis: "Tăng huyết áp độ 1",
-    status: "Đã hoàn thành",
-    expiryDate: "22/04/2025",
-    medications: [
-      {
-        name: "Amlodipine",
-        dosage: "5mg",
-        frequency: "1 lần/ngày",
-        duration: "7 ngày",
-        instructions: "Uống vào buổi sáng"
-      },
-      {
-        name: "Losartan",
-        dosage: "50mg",
-        frequency: "1 lần/ngày",
-        duration: "7 ngày",
-        instructions: "Uống vào buổi tối"
-      }
-    ]
-  },
-  {
-    id: 3,
-    prescriptionId: "DT-2025-028",
-    date: "05/04/2025",
-    doctorName: "PGS. TS. Nguyễn Thị D",
-    department: "Khoa Tiêu hóa",
-    diagnosis: "Viêm dạ dày cấp",
-    status: "Đã hoàn thành",
-    expiryDate: "12/04/2025",
-    medications: [
-      {
-        name: "Omeprazole",
-        dosage: "20mg",
-        frequency: "1 lần/ngày",
-        duration: "7 ngày",
-        instructions: "Uống trước bữa sáng 30 phút"
-      },
-      {
-        name: "Domperidone",
-        dosage: "10mg",
-        frequency: "3 lần/ngày",
-        duration: "5 ngày",
-        instructions: "Uống trước khi ăn 30 phút"
-      },
-      {
-        name: "Bismuth subsalicylate",
-        dosage: "262mg",
-        frequency: "4 lần/ngày",
-        duration: "7 ngày",
-        instructions: "Uống sau khi ăn"
-      }
-    ]
-  },
-  {
-    id: 4,
-    prescriptionId: "DT-2025-020",
-    date: "25/03/2025",
-    doctorName: "TS. BS. Hoàng Văn E",
-    department: "Khoa Tim mạch",
-    diagnosis: "Rối loạn nhịp tim",
-    status: "Đã hoàn thành",
-    expiryDate: "08/04/2025",
-    medications: [
-      {
-        name: "Metoprolol",
-        dosage: "25mg",
-        frequency: "2 lần/ngày",
-        duration: "14 ngày",
-        instructions: "Uống sau khi ăn"
-      },
-      {
-        name: "Atenolol",
-        dosage: "50mg",
-        frequency: "1 lần/ngày",
-        duration: "14 ngày",
-        instructions: "Uống vào buổi sáng"
-      }
-    ]
-  },
-  {
-    id: 5,
-    prescriptionId: "DT-2025-012",
-    date: "15/03/2025",
-    doctorName: "BS. Vũ Thị F",
-    department: "Khoa Thần kinh",
-    diagnosis: "Đau đầu Migraine",
-    status: "Đã hoàn thành",
-    expiryDate: "22/03/2025",
-    medications: [
-      {
-        name: "Sumatriptan",
-        dosage: "50mg",
-        frequency: "Khi có cơn đau (tối đa 2 lần/ngày)",
-        duration: "7 ngày",
-        instructions: "Uống khi có triệu chứng"
-      },
-      {
-        name: "Propranolol",
-        dosage: "40mg",
-        frequency: "2 lần/ngày",
-        duration: "7 ngày",
-        instructions: "Uống sau khi ăn"
-      }
-    ]
-  }
-];
+import { useAuth } from '../../contexts/AuthContext';
+import { 
+  getPatientPrescriptions, 
+  getPrescriptionDetail, 
+  filterPrescriptionsByStatus, 
+  searchPrescriptions 
+} from '../../firebase/services/medicationService';
 
 function PatientMedications() {
-  const [medications, setMedications] = useState(allMedications);
+  const { currentUser, userProfile } = useAuth();
+  const [medications, setMedications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedPrescription, setSelectedPrescription] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('Tất cả');
   const [currentPage, setCurrentPage] = useState(1);
   const [prescriptionsPerPage] = useState(5);
 
-  // Lọc đơn thuốc
+  // Lấy danh sách đơn thuốc
   useEffect(() => {
-    let filtered = allMedications;
-    
-    // Lọc theo trạng thái
-    if (statusFilter !== 'Tất cả') {
-      filtered = filtered.filter(prescription => prescription.status === statusFilter);
+    const fetchPrescriptions = async () => {
+      try {
+        setLoading(true);
+        let prescriptions;
+        
+        if (statusFilter === 'Tất cả') {
+          prescriptions = await getPatientPrescriptions(currentUser.uid);
+        } else {
+          prescriptions = await filterPrescriptionsByStatus(currentUser.uid, statusFilter);
+        }
+        
+        setMedications(prescriptions);
+        setError(null);
+      } catch (err) {
+        console.error("Lỗi khi lấy đơn thuốc:", err);
+        setError("Không thể tải đơn thuốc. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentUser?.uid) {
+      fetchPrescriptions();
     }
-    
-    // Lọc theo tìm kiếm
-    if (searchTerm) {
-      filtered = filtered.filter(prescription => 
-        prescription.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        prescription.diagnosis.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        prescription.prescriptionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        prescription.medications.some(med => med.name.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-    
-    setMedications(filtered);
-    setCurrentPage(1); // Reset về trang đầu tiên khi lọc
-  }, [searchTerm, statusFilter]);
+  }, [currentUser, statusFilter]);
+
+  // Xử lý tìm kiếm
+  useEffect(() => {
+    const handleSearch = async () => {
+      if (!searchTerm) {
+        // Nếu không có từ khóa tìm kiếm, tải lại danh sách ban đầu
+        if (statusFilter === 'Tất cả') {
+          const prescriptions = await getPatientPrescriptions(currentUser.uid);
+          setMedications(prescriptions);
+        } else {
+          const prescriptions = await filterPrescriptionsByStatus(currentUser.uid, statusFilter);
+          setMedications(prescriptions);
+        }
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const results = await searchPrescriptions(currentUser.uid, searchTerm);
+        setMedications(results);
+        setError(null);
+      } catch (err) {
+        console.error("Lỗi khi tìm kiếm đơn thuốc:", err);
+        setError("Không thể tìm kiếm đơn thuốc. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Sử dụng debounce để tránh gọi API quá nhiều
+    const timeoutId = setTimeout(() => {
+      if (currentUser?.uid) {
+        handleSearch();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, currentUser]);
 
   // Phân trang
   const indexOfLastPrescription = currentPage * prescriptionsPerPage;
@@ -203,8 +96,23 @@ function PatientMedications() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Hàm hiển thị chi tiết đơn thuốc
-  const showPrescriptionDetail = (prescription) => {
-    setSelectedPrescription(prescription);
+  const showPrescriptionDetail = async (prescription) => {
+    try {
+      // Nếu đơn thuốc đã có đầy đủ thông tin (bao gồm danh sách medications)
+      if (prescription.medications) {
+        setSelectedPrescription(prescription);
+      } else {
+        // Nếu chưa có đầy đủ thông tin, lấy chi tiết từ API
+        setLoading(true);
+        const detail = await getPrescriptionDetail(prescription.id);
+        setSelectedPrescription(detail);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy chi tiết đơn thuốc:", err);
+      setError("Không thể tải chi tiết đơn thuốc. Vui lòng thử lại sau.");
+      setLoading(false);
+    }
   };
 
   // Hàm đóng modal
@@ -220,15 +128,15 @@ function PatientMedications() {
           <div className="flex flex-col md:flex-row md:justify-between md:items-center">
             <div className="flex items-center mb-4 md:mb-0">
               <div className="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-2xl mr-4">
-                {patientInfo.name.charAt(0)}
+                {userProfile?.name?.charAt(0) || 'B'}
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">{patientInfo.name}</h1>
+                <h1 className="text-xl font-bold text-gray-800">{userProfile?.name || 'Bệnh nhân'}</h1>
                 <p className="text-sm text-gray-500">
-                  Mã BN: {patientInfo.id} | {patientInfo.age} tuổi | {patientInfo.gender}
+                  Mã BN: {userProfile?.patientId || 'BN-XXXX'} | {userProfile?.age || 'N/A'} tuổi | {userProfile?.gender || 'N/A'}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Bác sĩ phụ trách: {patientInfo.doctorName}
+                  Bác sĩ phụ trách: {userProfile?.doctorName || 'Chưa có thông tin'}
                 </p>
               </div>
             </div>
@@ -293,77 +201,94 @@ function PatientMedications() {
             </div>
           </div>
 
+          {/* Hiển thị lỗi */}
+          {error && (
+            <div className="p-4 bg-red-50 text-red-600 border-b border-gray-200">
+              <p>{error}</p>
+            </div>
+          )}
+
+          {/* Loading state */}
+          {loading && (
+            <div className="p-8 text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+              <p className="mt-2 text-gray-600">Đang tải đơn thuốc...</p>
+            </div>
+          )}
+
           {/* Danh sách đơn thuốc */}
-          <div className="divide-y divide-gray-200">
-            {currentPrescriptions.length > 0 ? (
-              currentPrescriptions.map((prescription) => (
-                <div key={prescription.id} 
-                     className="p-4 hover:bg-blue-50 transition cursor-pointer"
-                     onClick={() => showPrescriptionDetail(prescription)}>
-                  <div className="flex flex-col md:flex-row md:justify-between">
-                    <div>
-                      <div className="flex items-center">
-                        <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                        </svg>
-                        <span className="text-md font-medium text-gray-800">{prescription.prescriptionId}</span>
-                        <span className="ml-2 text-gray-600">({prescription.date})</span>
+          {!loading && (
+            <div className="divide-y divide-gray-200">
+              {currentPrescriptions.length > 0 ? (
+                currentPrescriptions.map((prescription) => (
+                  <div key={prescription.id} 
+                      className="p-4 hover:bg-blue-50 transition cursor-pointer"
+                      onClick={() => showPrescriptionDetail(prescription)}>
+                    <div className="flex flex-col md:flex-row md:justify-between">
+                      <div>
+                        <div className="flex items-center">
+                          <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                          </svg>
+                          <span className="text-md font-medium text-gray-800">{prescription.prescriptionId}</span>
+                          <span className="ml-2 text-gray-600">({prescription.date})</span>
+                        </div>
+                        <h3 className="text-md font-medium text-gray-800 mt-1">
+                          {prescription.diagnosis}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Bác sĩ: {prescription.doctorName}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {prescription.department}
+                        </p>
+                        <div className="mt-2">
+                          <ul className="list-disc text-sm text-gray-600 pl-5">
+                            {prescription.medications && prescription.medications.slice(0, 2).map((med, index) => (
+                              <li key={index}>{med.name} {med.dosage} - {med.frequency}</li>
+                            ))}
+                            {prescription.medications && prescription.medications.length > 2 && (
+                              <li className="text-blue-600">+{prescription.medications.length - 2} thuốc khác</li>
+                            )}
+                          </ul>
+                        </div>
                       </div>
-                      <h3 className="text-md font-medium text-gray-800 mt-1">
-                        {prescription.diagnosis}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Bác sĩ: {prescription.doctorName}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {prescription.department}
-                      </p>
-                      <div className="mt-2">
-                        <ul className="list-disc text-sm text-gray-600 pl-5">
-                          {prescription.medications.slice(0, 2).map((med, index) => (
-                            <li key={index}>{med.name} {med.dosage} - {med.frequency}</li>
-                          ))}
-                          {prescription.medications.length > 2 && (
-                            <li className="text-blue-600">+{prescription.medications.length - 2} thuốc khác</li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                    <div className="mt-2 md:mt-0 md:ml-4 md:text-right">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        prescription.status === 'Đang sử dụng' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {prescription.status}
-                      </span>
-                      <div className="mt-2">
-                        <p className="text-xs text-gray-500">Hết hạn: {prescription.expiryDate}</p>
-                      </div>
-                      <div className="mt-2">
-                        <button className="text-blue-600 text-sm font-medium hover:text-blue-800">
-                          Xem chi tiết
-                        </button>
+                      <div className="mt-2 md:mt-0 md:ml-4 md:text-right">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          prescription.status === 'Đang sử dụng' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {prescription.status}
+                        </span>
+                        <div className="mt-2">
+                          <p className="text-xs text-gray-500">Hết hạn: {prescription.expiryDate}</p>
+                        </div>
+                        <div className="mt-2">
+                          <button className="text-blue-600 text-sm font-medium hover:text-blue-800">
+                            Xem chi tiết
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="p-8 text-center">
+                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">Không tìm thấy đơn thuốc nào</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Thử thay đổi bộ lọc hoặc điều kiện tìm kiếm
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="p-8 text-center">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Không tìm thấy đơn thuốc nào</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Thử thay đổi bộ lọc hoặc điều kiện tìm kiếm
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Phân trang */}
-          {totalPages > 1 && (
+          {!loading && totalPages > 1 && (
             <div className="px-4 py-3 flex items-center justify-between border-t border-gray-200">
               <div className="flex-1 flex justify-between sm:hidden">
                 <button

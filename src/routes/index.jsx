@@ -5,6 +5,9 @@ import Unauthorized from '../pages/Unauthorized';
 import DoctorDashboard from '../pages/DoctorDashboard';
 import PatientDashboard from '../pages/PatientDashboard';
 import PatientList from '../pages/DoctorDashboard/patientList.jsx';
+import NewPatient from '../pages/DoctorDashboard/newPatient.jsx';
+import LinkPatient from '../pages/DoctorDashboard/linkPatient.jsx';
+import PatientDetail from '../pages/DoctorDashboard/patientDetail.jsx';
 import DoctorLayout from '../components/DoctorLayout';
 import PatientLayout from '../components/PatientLayout';
 import PatientTestResults from '../pages/PatientDashboard/patientTestResults.jsx';
@@ -32,6 +35,21 @@ const doctorRoutes = [
         path: '/doctor/patients', 
         component: PatientList,
         layout: DoctorLayout 
+    },
+    { 
+        path: '/doctor/patients/new', 
+        component: NewPatient,
+        layout: DoctorLayout 
+    },
+    { 
+        path: '/doctor/patients/link', 
+        component: LinkPatient,
+        layout: DoctorLayout 
+    },
+    {
+        path: '/doctor/patients/:patientId',
+        component: PatientDetail,
+        layout: DoctorLayout
     },
 ];
 
