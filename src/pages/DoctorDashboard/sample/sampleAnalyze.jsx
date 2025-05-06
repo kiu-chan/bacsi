@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import axios from 'axios';
-import ApiService from '../../../services/api';
+import { io } from 'socket.io-client';
 
 // Mô hình có sẵn
 const availableModels = [
   { 
     id: 'breast-tumor-resnet34.tcga-brca', 
-    name: 'Mô hình phát hiện khối u vú', 
+    name: 'Mô hình phát hiện khối u vú (Breast Tumor Detection)', 
     description: 'Phát hiện và phân loại khối u trong mô vú'
   },
   { 
@@ -110,9 +110,75 @@ function SampleAnalyze() {
   const [error, setError] = useState(null);
   const [selectedModel, setSelectedModel] = useState('breast-tumor-resnet34.tcga-brca');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisProgress, setAnalysisProgress] = useState(0);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [logOutput, setLogOutput] = useState([]);
+  const [socket, setSocket] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  // Khởi tạo WebSocket
+  useEffect(() => {
+    // Tạo kết nối socket
+    const newSocket = io('http://localhost:5001', {
+      withCredentials: true,
+      transports: ['websocket', 'polling']
+    });
+    
+    // Xử lý kết nối
+    newSocket.on('connect', () => {
+      console.log('Đã kết nối đến server WebSocket');
+      setIsConnected(true);
+    });
+    
+    // Xử lý ngắt kết nối
+    newSocket.on('disconnect', () => {
+      console.log('Ngắt kết nối khỏi server WebSocket');
+      setIsConnected(false);
+    });
+    
+    // Xử lý log phân tích
+    newSocket.on('analysis-log', (message) => {
+      console.log('Nhận log:', message);
+      addLog(message);
+      
+      // Tự động cuộn xuống cuối
+      setTimeout(() => {
+        const terminalEl = document.querySelector('.terminal-output');
+        if (terminalEl) {
+          terminalEl.scrollTop = terminalEl.scrollHeight;
+        }
+      }, 100);
+    });
+    
+    // Xử lý lỗi phân tích
+    newSocket.on('analysis-error', (errorMessage) => {
+      console.error('Lỗi phân tích:', errorMessage);
+      setError(`Lỗi phân tích: ${errorMessage}`);
+      setIsAnalyzing(false);
+    });
+    
+    // Xử lý kết quả phân tích
+    newSocket.on('analysis-complete', (result) => {
+      console.log('Phân tích hoàn thành:', result);
+      setAnalysisResult(result);
+      setIsAnalyzing(false);
+      
+      // Cập nhật trạng thái mẫu
+      setSample(prev => ({
+        ...prev,
+        status: 'Đã phân tích'
+      }));
+    });
+    
+    // Lưu socket
+    setSocket(newSocket);
+    
+    // Hủy kết nối khi component unmount
+    return () => {
+      if (newSocket) {
+        newSocket.disconnect();
+      }
+    };
+  }, []);
 
   // Lấy thông tin mẫu mô học
   useEffect(() => {
@@ -120,7 +186,7 @@ function SampleAnalyze() {
       try {
         setLoading(true);
         // Trong thực tế, đây sẽ là API call đến backend
-        // const response = await ApiService.getSampleById(sampleId);
+        // const response = await axios.get(`/api/samples/${sampleId}`);
         
         // Tạm thời sử dụng dữ liệu mẫu
         const foundSample = mockSamples.find(s => s.id === parseInt(sampleId));
@@ -145,47 +211,37 @@ function SampleAnalyze() {
     }
   }, [sampleId]);
 
-  // Thực hiện phân tích mẫu mô học
-  const handleAnalyze = async () => {
+  // Thêm log phân tích
+  const addLog = (message) => {
+    setLogOutput(prevLogs => [...prevLogs, message]);
+  };
+
+  // Thực hiện phân tích mẫu mô học với WebSocket
+  const handleAnalyze = () => {
+    if (!socket || !isConnected) {
+      setError("Không thể kết nối đến server. Vui lòng thử lại sau.");
+      return;
+    }
+    
     try {
       setIsAnalyzing(true);
-      setAnalysisProgress(0);
       setAnalysisResult(null);
       setError(null);
       setLogOutput([]);
-
-      // Thêm log bắt đầu
-      addLog(`Bắt đầu phân tích mẫu ${sample.fileName} với mô hình ${selectedModel}`);
-      addLog(`Chuyển thư mục sang wsinfer...`);
-
-      // Chuẩn bị thông tin cho lệnh WSInfer
-      const slideDir = './slides/';
-      const resultsDir = `./results/${sampleId}/${selectedModel}/`;
-
-      addLog(`(base) hoangkhanh@192 bacsi % cd wsinfer`);
-      addLog(`(pytorch-env) (base) hoangkhanh@192 wsinfer %`);
-
-      // Thêm log lệnh phân tích
-      const commandLog = `wsinfer run --wsi-dir ${slideDir} --results-dir ${resultsDir} --model ${selectedModel}`;
-      addLog(commandLog);
-
-      try {
-        // Gọi API để thực hiện lệnh WSInfer
-        const response = await ApiService.analyzeSample(sampleId, selectedModel, sample.fileName);
-        
-        console.log('Kết quả từ API:', response);
-        
-        // Mô phỏng log quá trình phân tích
-        simulateAnalysisLogs();
-        
-        // Mô phỏng tiến trình phân tích
-        simulateProgress();
-      } catch (apiError) {
-        console.error("Lỗi khi gọi API phân tích:", apiError);
-        addLog(`Lỗi: ${apiError.message || 'Không thể thực hiện lệnh phân tích'}`);
-        setError(`Lỗi khi phân tích: ${apiError.message || 'Không xác định'}`);
-        setIsAnalyzing(false);
-      }
+      
+      console.log('Gửi yêu cầu phân tích:', {
+        sampleId,
+        modelId: selectedModel,
+        fileName: sample.fileName
+      });
+      
+      // Gửi yêu cầu phân tích qua WebSocket
+      socket.emit('start-analysis', {
+        sampleId,
+        modelId: selectedModel,
+        fileName: sample.fileName
+      });
+      
     } catch (err) {
       console.error("Lỗi khi phân tích mẫu mô học:", err);
       setError("Không thể thực hiện phân tích mẫu mô học. Vui lòng thử lại sau.");
@@ -193,104 +249,28 @@ function SampleAnalyze() {
     }
   };
 
-  // Thêm log phân tích
-  const addLog = (message) => {
-    setLogOutput(prevLogs => [...prevLogs, message]);
-  };
-
-  // Mô phỏng log quá trình phân tích
-  const simulateAnalysisLogs = () => {
-    const logMessages = [
-      `Đang tải mô hình ${selectedModel}...`,
-      `Tải mô hình hoàn tất.`,
-      `Đang đọc ảnh mẫu ${sample.fileName}...`,
-      `Kích thước ảnh: 45312x32896 pixels, 3 kênh, độ phân giải 0.5 µm/pixel`,
-      `Phân vùng ảnh thành 1128 patches kích thước 256x256...`,
-      `Áp dụng mô hình lên các patches...`,
-      `Tính toán heatmap và phân đoạn vùng quan tâm...`,
-      `Ghi kết quả vào đường dẫn: ./results/${sampleId}/${selectedModel}/`,
-      `Phân tích hoàn tất.`
-    ];
-
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < logMessages.length) {
-        addLog(logMessages[index]);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 2000);
-  };
-
-  // Mô phỏng tiến trình phân tích
-  const simulateProgress = () => {
-    let progress = 0;
-    const intervalId = setInterval(() => {
-      progress += Math.random() * 5;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(intervalId);
-        
-        // Hoàn thành phân tích
-        const result = {
-          status: 'success',
-          time: new Date().toLocaleString(),
-          resultPath: `./results/${sampleId}/${selectedModel}/`,
-          command: `wsinfer run --wsi-dir ./slides/ --results-dir ./results/${sampleId}/${selectedModel}/ --model ${selectedModel}`,
-          summary: {
-            totalSlides: 1,
-            detectedRegions: Math.floor(Math.random() * 20) + 1,
-            confidence: (Math.random() * (0.99 - 0.80) + 0.80).toFixed(2)
-          }
-        };
-        
-        setAnalysisResult(result);
-        setIsAnalyzing(false);
-        
-        // Cập nhật trạng thái mẫu
-        setSample(prev => ({
-          ...prev,
-          status: 'Đã phân tích'
-        }));
-
-        // Thêm log hoàn thành
-        addLog(`Phân tích hoàn thành với độ tin cậy ${(result.summary.confidence * 100).toFixed(0)}%`);
-      }
-      
-      setAnalysisProgress(Math.min(Math.floor(progress), 100));
-    }, 800);
-  };
-
-  // Hiển thị các model phù hợp với loại mẫu
-  const getRecommendedModels = () => {
-    if (!sample) return availableModels;
-    
-    // Lọc model dựa trên loại mẫu
-    switch (sample.sampleType.toLowerCase()) {
-      case 'mô phổi':
-        return availableModels.filter(model => 
-          model.id === 'lung-tumor-resnet34.tcga-luad' || 
-          model.id === 'pancancer-lymphocytes-inceptionv4.tcga'
-        );
-      case 'mô vú':
-        return availableModels.filter(model => 
-          model.id === 'breast-tumor-resnet34.tcga-brca' || 
-          model.id === 'pancancer-lymphocytes-inceptionv4.tcga'
-        );
-      case 'mô đại trực tràng':
-        return availableModels.filter(model => 
-          model.id.includes('colorectal') || 
-          model.id === 'pancancer-lymphocytes-inceptionv4.tcga'
-        );
-      default:
-        return availableModels;
-    }
-  };
-
   // Lấy model hiện tại
   const getCurrentModel = () => {
     return availableModels.find(model => model.id === selectedModel) || availableModels[0];
+  };
+
+  // Kiểm tra trạng thái kết nối WebSocket
+  const getConnectionStatus = () => {
+    if (isConnected) {
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+          Đã kết nối
+        </span>
+      );
+    } else {
+      return (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+          <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+          Mất kết nối
+        </span>
+      );
+    }
   };
 
   if (loading) {
@@ -353,15 +333,18 @@ function SampleAnalyze() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-800">Phân tích mẫu mô học</h1>
-            <Link
-              to="/doctor/samples"
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
-            >
-              <svg className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Quay lại danh sách
-            </Link>
+            <div className="flex items-center space-x-4">
+              {getConnectionStatus()}
+              <Link
+                to="/doctor/samples"
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
+              >
+                <svg className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Quay lại danh sách
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -427,7 +410,7 @@ function SampleAnalyze() {
           <div className="p-6">
             <h3 className="text-base font-medium text-gray-800 mb-3">Chọn mô hình phân tích</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {getRecommendedModels().map((model) => (
+              {availableModels.map((model) => (
                 <div 
                   key={model.id}
                   className={`border-2 rounded-lg p-4 cursor-pointer transition ${
@@ -453,6 +436,7 @@ function SampleAnalyze() {
                     <div>
                       <h3 className="text-base font-medium text-gray-800">{model.name}</h3>
                       <p className="text-sm text-gray-600">{model.description}</p>
+                      <p className="text-xs font-mono text-gray-500 mt-1">{model.id}</p>
                     </div>
                   </div>
                 </div>
@@ -473,9 +457,9 @@ function SampleAnalyze() {
             <div className="flex justify-center">
               <button
                 onClick={handleAnalyze}
-                disabled={isAnalyzing}
+                disabled={isAnalyzing || !isConnected}
                 className={`flex items-center px-6 py-3 rounded-md font-medium text-base ${
-                  isAnalyzing
+                  isAnalyzing || !isConnected
                     ? 'bg-gray-400 text-white cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
@@ -497,14 +481,20 @@ function SampleAnalyze() {
           </div>
         </div>
 
-        {/* Terminal Output */}
-        {isAnalyzing && (
+        {/* Terminal Output - Luôn hiển thị khi có log */}
+        {logOutput.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-            <div className="px-6 py-4 border-b border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
               <h2 className="font-semibold text-lg text-gray-800">Terminal Output</h2>
+              {isAnalyzing && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 animate-pulse">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                  Đang xử lý
+                </span>
+              )}
             </div>
             
-            <div className="bg-black text-green-400 p-4 font-mono text-sm overflow-x-auto max-h-80 overflow-y-auto">
+            <div className="bg-black text-green-400 p-4 font-mono text-sm overflow-x-auto max-h-96 overflow-y-auto terminal-output">
               {logOutput.map((line, index) => (
                 <div key={index} className="py-0.5">
                   {index === logOutput.length - 1 && !isAnalyzing ? (
@@ -516,35 +506,23 @@ function SampleAnalyze() {
               ))}
               {isAnalyzing && <span className="animate-pulse">_</span>}
             </div>
-          </div>
-        )}
 
-        {/* Analysis Progress */}
-        {isAnalyzing && (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6 p-6">
-            <h2 className="font-semibold text-lg text-gray-800 mb-4">Tiến trình phân tích</h2>
-            
-            <div className="mb-2 flex justify-between text-sm text-gray-600">
-              <span>Đang phân tích mẫu mô học với mô hình {getCurrentModel().name}</span>
-              <span>{analysisProgress}%</span>
-            </div>
-            
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-blue-600 transition-all duration-300"
-                style={{ width: `${analysisProgress}%` }}
-              ></div>
-            </div>
-            
-            <div className="mt-6 flex flex-col items-center text-center">
-              <div className="animate-pulse text-blue-600">
-                <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            {/* Nút cuộn xuống cuối */}
+            <div className="p-2 border-t border-gray-800 bg-gray-900">
+              <button
+                onClick={() => {
+                  const terminalEl = document.querySelector('.terminal-output');
+                  if (terminalEl) {
+                    terminalEl.scrollTop = terminalEl.scrollHeight;
+                  }
+                }}
+                className="text-xs text-gray-400 hover:text-white flex items-center"
+              >
+                <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
-              </div>
-              <p className="mt-2 text-gray-600">
-                Quá trình phân tích có thể mất vài phút. Vui lòng chờ...
-              </p>
+                Cuộn xuống cuối
+              </button>
             </div>
           </div>
         )}
