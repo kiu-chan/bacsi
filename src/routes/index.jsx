@@ -1,4 +1,3 @@
-// src/routes/index.jsx
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Unauthorized from '../pages/Unauthorized';
@@ -8,6 +7,7 @@ import PatientList from '../pages/DoctorDashboard/patient/patientList.jsx';
 
 import SampleList from '../pages/DoctorDashboard/sample/sampleList.jsx';
 import SampleDetail from '../pages/DoctorDashboard/sample/sampleDetail.jsx';
+import SampleAnalyze from '../pages/DoctorDashboard/sample/sampleAnalyze.jsx'; // Thêm dòng này
 
 import NewPatient from '../pages/DoctorDashboard/patient/newPatient.jsx';
 import LinkPatient from '../pages/DoctorDashboard/patient/linkPatient.jsx';
@@ -80,9 +80,14 @@ const doctorRoutes = [
         layout: DoctorLayout 
     },
     {
-      path: '/doctor/samples/:sampleId',
-      component: SampleDetail,
-      layout: DoctorLayout
+        path: '/doctor/samples/:sampleId',
+        component: SampleDetail,
+        layout: DoctorLayout
+    },
+    {
+        path: '/doctor/samples/:sampleId/analyze', // Thêm route phân tích
+        component: SampleAnalyze,
+        layout: DoctorLayout
     },
 ];
 

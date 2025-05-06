@@ -286,8 +286,8 @@ function SampleList() {
                               Chi tiết
                             </Link>
                             <Link to={`/doctor/samples/${sample.id}/analyze`} className="text-green-600 hover:text-green-900">
-                              Phân tích
-                            </Link>
+  Phân tích
+</Link>
                           </td>
                         </tr>
                       ))}
