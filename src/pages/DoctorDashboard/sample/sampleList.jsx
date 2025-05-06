@@ -25,36 +25,6 @@ const mockSamples = [
     image: '/api/placeholder/80/80',
     fileName: 'HE-1.svs'
   },
-  { 
-    id: 103, 
-    patientName: 'Lê Văn C', 
-    patientId: 'BN-0003',
-    sampleType: 'Mô tuyến giáp', 
-    dateCollected: '22/04/2025', 
-    status: 'Chờ phân tích',
-    image: '/api/placeholder/80/80',
-    fileName: 'TH-5.svs'
-  },
-  { 
-    id: 104, 
-    patientName: 'Phạm Thị D', 
-    patientId: 'BN-0004',
-    sampleType: 'Mô vú', 
-    dateCollected: '20/04/2025', 
-    status: 'Đã phân tích',
-    image: '/api/placeholder/80/80',
-    fileName: 'BR-8.svs'
-  },
-  { 
-    id: 105, 
-    patientName: 'Hoàng Văn E', 
-    patientId: 'BN-0005',
-    sampleType: 'Mô da', 
-    dateCollected: '18/04/2025', 
-    status: 'Đã phân tích',
-    image: '/api/placeholder/80/80',
-    fileName: 'SK-2.svs'
-  },
 ];
 
 function SampleList() {

@@ -6,44 +6,14 @@ import { Link } from 'react-router-dom';
 const recentPatients = [
   { id: 1, name: 'Nguyễn Văn A', age: 45, gender: 'Nam', lastVisit: '25/04/2025', status: 'Đang điều trị' },
   { id: 2, name: 'Trần Thị B', age: 38, gender: 'Nữ', lastVisit: '24/04/2025', status: 'Theo dõi' },
-  { id: 3, name: 'Lê Văn C', age: 62, gender: 'Nam', lastVisit: '22/04/2025', status: 'Mới' },
-  { id: 4, name: 'Phạm Thị D', age: 29, gender: 'Nữ', lastVisit: '21/04/2025', status: 'Hoàn thành' },
 ];
 
 const pendingSamples = [
   { id: 101, patientName: 'Nguyễn Văn A', sampleType: 'Mô phổi', dateCollected: '25/04/2025', status: 'Chờ phân tích' },
   { id: 102, patientName: 'Trần Thị B', sampleType: 'Mô gan', dateCollected: '24/04/2025', status: 'Đang xử lý' },
-  { id: 103, patientName: 'Lê Văn C', sampleType: 'Mô tuyến giáp', dateCollected: '22/04/2025', status: 'Chờ phân tích' },
 ];
 
 const recentAnalyses = [
-  { 
-    id: 201, 
-    patientName: 'Đặng Văn E', 
-    sampleType: 'Mô phổi',
-    dateAnalyzed: '20/04/2025', 
-    result: 'Phát hiện bất thường',
-    confidence: '94%',
-    image: '/api/placeholder/80/80'
-  },
-  { 
-    id: 202, 
-    patientName: 'Ngô Thị F', 
-    sampleType: 'Mô gan',
-    dateAnalyzed: '19/04/2025', 
-    result: 'Không phát hiện bất thường',
-    confidence: '97%',
-    image: '/api/placeholder/80/80'
-  },
-  { 
-    id: 203, 
-    patientName: 'Vũ Văn G', 
-    sampleType: 'Mô vú',
-    dateAnalyzed: '18/04/2025', 
-    result: 'Phát hiện bất thường',
-    confidence: '89%',
-    image: '/api/placeholder/80/80'
-  },
 ];
 
 // Dữ liệu thống kê
