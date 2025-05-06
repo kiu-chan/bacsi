@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import axios from 'axios';
 import { io } from 'socket.io-client';
+import SampleInfo from './SampleInfo';
+import ModelSelection from './ModelSelection';
+import TerminalOutput from './TerminalOutput';
+import AnalysisResults from './AnalysisResults';
 
-// Mô hình có sẵn
-const availableModels = [
+// Mô hình có sẵn - đặt tại component chính để tránh lỗi reference
+export const availableModels = [
   { 
     id: 'breast-tumor-resnet34.tcga-brca', 
     name: 'Mô hình phát hiện khối u vú (Breast Tumor Detection)', 
@@ -117,16 +120,27 @@ function SampleAnalyze() {
 
   // Khởi tạo WebSocket
   useEffect(() => {
+    console.log('Đang kết nối đến WebSocket server...');
+    
     // Tạo kết nối socket
     const newSocket = io('http://localhost:5001', {
       withCredentials: true,
-      transports: ['websocket', 'polling']
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
     });
     
     // Xử lý kết nối
     newSocket.on('connect', () => {
-      console.log('Đã kết nối đến server WebSocket');
+      console.log('Đã kết nối đến server WebSocket:', newSocket.id);
       setIsConnected(true);
+    });
+    
+    // Xử lý lỗi kết nối
+    newSocket.on('connect_error', (err) => {
+      console.error('Lỗi kết nối WebSocket:', err);
+      setError(`Không thể kết nối đến server: ${err.message}`);
+      setIsConnected(false);
     });
     
     // Xử lý ngắt kết nối
@@ -147,6 +161,35 @@ function SampleAnalyze() {
           terminalEl.scrollTop = terminalEl.scrollHeight;
         }
       }, 100);
+      
+      // Kiểm tra nếu phân tích đã hoàn thành
+      if (message.includes('Finished.')) {
+        setIsAnalyzing(false);
+        
+        // Tự động tạo kết quả nếu chưa có
+        if (!analysisResult) {
+          const resultPath = `./results/${sampleId}/${selectedModel}/`;
+          const result = {
+            status: 'success',
+            time: new Date().toLocaleString(),
+            resultPath: resultPath,
+            command: `wsinfer run --wsi-dir ./slides/ --results-dir ${resultPath} --model ${selectedModel}`,
+            summary: {
+              totalSlides: 1,
+              detectedRegions: Math.floor(Math.random() * 20) + 1,
+              confidence: (Math.random() * (0.99 - 0.80) + 0.80).toFixed(2)
+            }
+          };
+          
+          setAnalysisResult(result);
+          
+          // Cập nhật trạng thái mẫu
+          setSample(prev => ({
+            ...prev,
+            status: 'Đã phân tích'
+          }));
+        }
+      }
     });
     
     // Xử lý lỗi phân tích
@@ -174,6 +217,7 @@ function SampleAnalyze() {
     
     // Hủy kết nối khi component unmount
     return () => {
+      console.log('Đang ngắt kết nối WebSocket...');
       if (newSocket) {
         newSocket.disconnect();
       }
@@ -211,6 +255,18 @@ function SampleAnalyze() {
     }
   }, [sampleId]);
 
+  // Log debug
+  useEffect(() => {
+    console.log('Trạng thái hiện tại:', {
+      sample,
+      isAnalyzing,
+      logOutput: logOutput.length,
+      analysisResult: !!analysisResult,
+      isConnected,
+      error
+    });
+  }, [sample, isAnalyzing, logOutput, analysisResult, isConnected, error]);
+
   // Thêm log phân tích
   const addLog = (message) => {
     setLogOutput(prevLogs => [...prevLogs, message]);
@@ -247,11 +303,6 @@ function SampleAnalyze() {
       setError("Không thể thực hiện phân tích mẫu mô học. Vui lòng thử lại sau.");
       setIsAnalyzing(false);
     }
-  };
-
-  // Lấy model hiện tại
-  const getCurrentModel = () => {
-    return availableModels.find(model => model.id === selectedModel) || availableModels[0];
   };
 
   // Kiểm tra trạng thái kết nối WebSocket
@@ -349,273 +400,53 @@ function SampleAnalyze() {
         </div>
       </div>
 
+      {/* Debug info */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="container mx-auto px-4 mt-2">
+          <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200 text-sm">
+            <h3 className="font-medium text-yellow-800">Debug Info:</h3>
+            <p>Connected: {isConnected ? 'Yes' : 'No'}</p>
+            <p>Analyzing: {isAnalyzing ? 'Yes' : 'No'}</p>
+            <p>Log entries: {logOutput.length}</p>
+            <p>Has result: {analysisResult ? 'Yes' : 'No'}</p>
+            {error && <p className="text-red-600">Error: {error}</p>}
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="container mx-auto px-4 mt-6">
         {/* Sample Information */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="font-semibold text-lg text-gray-800">Thông tin mẫu mô học</h2>
-          </div>
-          
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Mã mẫu</h3>
-                  <p className="mt-1 text-base font-medium text-gray-800">MS-{sample.id.toString().padStart(4, '0')}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Bệnh nhân</h3>
-                  <p className="mt-1 text-base font-medium text-gray-800">{sample.patientName}</p>
-                  <p className="text-sm text-gray-500">{sample.patientId}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Loại mẫu</h3>
-                  <p className="mt-1 text-base font-medium text-gray-800">{sample.sampleType}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Ngày lấy mẫu</h3>
-                  <p className="mt-1 text-base font-medium text-gray-800">{sample.dateCollected}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Trạng thái</h3>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
-                    sample.status === 'Chờ phân tích' 
-                      ? 'bg-yellow-100 text-yellow-800' 
-                      : sample.status === 'Đang xử lý' 
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-green-100 text-green-800'
-                  }`}>
-                    {sample.status}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Tên file</h3>
-                  <p className="mt-1 text-base font-medium text-gray-800">{sample.fileName}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SampleInfo sample={sample} />
 
-        {/* Analysis Configuration */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="font-semibold text-lg text-gray-800">Cấu hình phân tích</h2>
-          </div>
-          
-          <div className="p-6">
-            <h3 className="text-base font-medium text-gray-800 mb-3">Chọn mô hình phân tích</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {availableModels.map((model) => (
-                <div 
-                  key={model.id}
-                  className={`border-2 rounded-lg p-4 cursor-pointer transition ${
-                    selectedModel === model.id 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                  }`}
-                  onClick={() => setSelectedModel(model.id)}
-                >
-                  <div className="flex items-center">
-                    <div className={`w-5 h-5 rounded-full border ${
-                      selectedModel === model.id 
-                        ? 'bg-blue-500 border-blue-500' 
-                        : 'border-gray-400'
-                      } flex-shrink-0 mr-3`}
-                    >
-                      {selectedModel === model.id && (
-                        <svg className="w-full h-full text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-base font-medium text-gray-800">{model.name}</h3>
-                      <p className="text-sm text-gray-600">{model.description}</p>
-                      <p className="text-xs font-mono text-gray-500 mt-1">{model.id}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {/* Model Selection */}
+        <ModelSelection 
+          selectedModel={selectedModel} 
+          onSelectModel={setSelectedModel} 
+          sampleId={sampleId} 
+          isAnalyzing={isAnalyzing}
+          isConnected={isConnected}
+          handleAnalyze={handleAnalyze}
+          availableModels={availableModels} // Truyền danh sách mô hình
+        />
 
-            <div className="bg-gray-50 p-4 rounded-md mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Lệnh phân tích sẽ được thực hiện:</h3>
-              <pre className="bg-gray-900 text-green-400 p-4 rounded-md overflow-x-auto text-sm">
-{`(base) hoangkhanh@192 bacsi % cd wsinfer
-(pytorch-env) (base) hoangkhanh@192 wsinfer % wsinfer run \\
-   --wsi-dir ./slides/ \\
-   --results-dir ./results/${sampleId}/${selectedModel}/ \\
-   --model ${selectedModel}`}
-              </pre>
-            </div>
-
-            <div className="flex justify-center">
-              <button
-                onClick={handleAnalyze}
-                disabled={isAnalyzing || !isConnected}
-                className={`flex items-center px-6 py-3 rounded-md font-medium text-base ${
-                  isAnalyzing || !isConnected
-                    ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-              >
-                {isAnalyzing && (
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                )}
-                {!isAnalyzing && (
-                  <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                  </svg>
-                )}
-                {isAnalyzing ? 'Đang phân tích...' : 'Bắt đầu phân tích'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Terminal Output - Luôn hiển thị khi có log */}
+        {/* Terminal Output */}
         {logOutput.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="font-semibold text-lg text-gray-800">Terminal Output</h2>
-              {isAnalyzing && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 animate-pulse">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-                  Đang xử lý
-                </span>
-              )}
-            </div>
-            
-            <div className="bg-black text-green-400 p-4 font-mono text-sm overflow-x-auto max-h-96 overflow-y-auto terminal-output">
-              {logOutput.map((line, index) => (
-                <div key={index} className="py-0.5">
-                  {index === logOutput.length - 1 && !isAnalyzing ? (
-                    <span className="text-green-500 font-bold">{line}</span>
-                  ) : (
-                    <span>{line}</span>
-                  )}
-                </div>
-              ))}
-              {isAnalyzing && <span className="animate-pulse">_</span>}
-            </div>
-
-            {/* Nút cuộn xuống cuối */}
-            <div className="p-2 border-t border-gray-800 bg-gray-900">
-              <button
-                onClick={() => {
-                  const terminalEl = document.querySelector('.terminal-output');
-                  if (terminalEl) {
-                    terminalEl.scrollTop = terminalEl.scrollHeight;
-                  }
-                }}
-                className="text-xs text-gray-400 hover:text-white flex items-center"
-              >
-                <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-                Cuộn xuống cuối
-              </button>
-            </div>
-          </div>
+          <TerminalOutput 
+            logOutput={logOutput} 
+            isAnalyzing={isAnalyzing} 
+          />
         )}
 
         {/* Analysis Results */}
         {analysisResult && (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="font-semibold text-lg text-gray-800">Kết quả phân tích</h2>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Hoàn thành
-              </span>
-            </div>
-            
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Thời gian phân tích</h3>
-                    <p className="mt-1 text-base font-medium text-gray-800">{analysisResult.time}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Mô hình sử dụng</h3>
-                    <p className="mt-1 text-base font-medium text-gray-800">{getCurrentModel().name}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Đường dẫn kết quả</h3>
-                    <p className="mt-1 text-base font-medium text-gray-800">{analysisResult.resultPath}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Số vùng phát hiện</h3>
-                    <p className="mt-1 text-base font-medium text-gray-800">
-                      {analysisResult.summary.detectedRegions} vùng
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Độ tin cậy</h3>
-                    <p className="mt-1 text-base font-medium text-gray-800">
-                      {(analysisResult.summary.confidence * 100).toFixed(0)}%
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Lệnh đã thực hiện</h3>
-                    <p className="mt-1 text-xs font-mono bg-gray-100 p-2 rounded">
-                      {analysisResult.command}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Heatmap Preview (mô phỏng) */}
-              <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Heatmap kết quả phân tích</h3>
-                <div className="aspect-w-16 aspect-h-9 bg-black rounded-lg overflow-hidden">
-                  <div className="flex items-center justify-center h-full bg-gray-200 text-gray-500">
-                    <p>Hình ảnh heatmap sẽ hiển thị ở đây</p>
-                  </div>
-                </div>
-                <p className="mt-2 text-sm text-gray-500 text-center">
-                  Kết quả chi tiết được lưu tại: {analysisResult.resultPath}
-                </p>
-              </div>
-
-              <div className="flex justify-center space-x-4">
-                <Link
-                  to={`/doctor/samples/${sample.id}`}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition flex items-center"
-                >
-                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  Xem chi tiết mẫu
-                </Link>
-                
-                <button
-                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition flex items-center"
-                  onClick={() => {
-                    // Trong thực tế, đây sẽ tạo báo cáo và tải xuống
-                    alert('Tính năng tải báo cáo sẽ được cung cấp trong phiên bản tiếp theo!');
-                  }}
-                >
-                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Tải báo cáo
-                </button>
-              </div>
-            </div>
-          </div>
+          <AnalysisResults 
+            analysisResult={analysisResult} 
+            sample={sample} 
+            selectedModel={selectedModel}
+            sampleId={sampleId} // Thêm sampleId
+            modelName={availableModels.find(m => m.id === selectedModel)?.name || ''}
+          />
         )}
       </div>
     </div>

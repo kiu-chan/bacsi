@@ -1,4 +1,4 @@
-// server.js - Backend API với WebSocket để gửi log theo thời gian thực
+// server.js - Backend API với WebSocket và hỗ trợ tải file
 import express from 'express';
 import { spawn } from 'child_process';
 import cors from 'cors';
@@ -88,15 +88,6 @@ function startAnalysis(socket, data) {
       const output = data.toString();
       console.log('wsinfer output:', output);
       
-      // Phân tích output để cập nhật tiến trình nếu có
-      if (output.includes('progress') || output.includes('%')) {
-        const progressMatch = output.match(/(\d+)%/);
-        if (progressMatch && progressMatch[1]) {
-          const progress = parseInt(progressMatch[1], 10);
-          socket.emit('analysis-progress', progress);
-        }
-      }
-      
       // Gửi log về client
       socket.emit('analysis-log', output);
     });
@@ -114,6 +105,7 @@ function startAnalysis(socket, data) {
       
       if (code === 0) {
         socket.emit('analysis-log', `Phân tích hoàn thành thành công.`);
+        socket.emit('analysis-log', `Finished.`);
         
         // Tạo kết quả giả lập
         const result = {
@@ -142,6 +134,77 @@ function startAnalysis(socket, data) {
     socket.emit('analysis-error', error.message || 'Lỗi máy chủ nội bộ');
   }
 }
+
+// API endpoint để tải file
+app.get('/api/download', (req, res) => {
+  try {
+    const filePath = req.query.path;
+    if (!filePath) {
+      return res.status(400).json({ error: 'Thiếu đường dẫn file' });
+    }
+    
+    // Đường dẫn tuyệt đối đến file
+    const absolutePath = path.resolve('../', filePath);
+    console.log('Tải file từ đường dẫn:', absolutePath);
+    
+    // Kiểm tra file có tồn tại không
+    if (!fs.existsSync(absolutePath)) {
+      return res.status(404).json({ error: 'File không tồn tại' });
+    }
+    
+    // Lấy tên file
+    const fileName = path.basename(absolutePath);
+    
+    // Thiết lập header cho tải file
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    
+    // Đọc và gửi file
+    const fileStream = fs.createReadStream(absolutePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Lỗi khi tải file:', error);
+    res.status(500).json({ error: error.message || 'Lỗi máy chủ nội bộ' });
+  }
+});
+
+// API endpoint để hiển thị file
+app.get('/api/files', (req, res) => {
+  try {
+    const filePath = req.query.path;
+    if (!filePath) {
+      return res.status(400).json({ error: 'Thiếu đường dẫn file' });
+    }
+    
+    // Đường dẫn tuyệt đối đến file
+    const absolutePath = path.resolve('../', filePath);
+    console.log('Hiển thị file từ đường dẫn:', absolutePath);
+    
+    // Kiểm tra file có tồn tại không
+    if (!fs.existsSync(absolutePath)) {
+      return res.status(404).json({ error: 'File không tồn tại' });
+    }
+    
+    // Thiết lập Content-Type dựa trên phần mở rộng file
+    const ext = path.extname(absolutePath).toLowerCase();
+    let contentType = 'application/octet-stream';
+    
+    if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+    else if (ext === '.png') contentType = 'image/png';
+    else if (ext === '.svg') contentType = 'image/svg+xml';
+    else if (ext === '.gif') contentType = 'image/gif';
+    else if (ext === '.json' || ext === '.geojson') contentType = 'application/json';
+    
+    res.setHeader('Content-Type', contentType);
+    
+    // Gửi file
+    const fileStream = fs.createReadStream(absolutePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Lỗi khi hiển thị file:', error);
+    res.status(500).json({ error: error.message || 'Lỗi máy chủ nội bộ' });
+  }
+});
 
 // API endpoint để kiểm tra trạng thái server
 app.get('/api/status', (req, res) => {
