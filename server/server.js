@@ -96,7 +96,7 @@ function startAnalysis(socket, data) {
     wsinferProcess.stderr.on('data', (data) => {
       const errorOutput = data.toString();
       console.error('wsinfer error:', errorOutput);
-      socket.emit('analysis-log', `Lỗi: ${errorOutput}`);
+      socket.emit('analysis-log', ` ${errorOutput}`);
     });
     
     // Xử lý khi lệnh hoàn thành

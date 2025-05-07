@@ -71,7 +71,7 @@ const mockSamples = [
     dateCollected: '24/04/2025', 
     status: 'Đang xử lý',
     image: '/api/placeholder/80/80',
-    fileName: 'HE-1.svs'
+    fileName: 'CMU2.svs'
   },
 ];
 

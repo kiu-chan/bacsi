@@ -12,7 +12,7 @@ const mockSamples = [
     sampleType: 'Mô phổi', 
     dateCollected: '25/04/2025', 
     status: 'Chờ phân tích',
-    image: '/api/placeholder/80/80',
+    image: '/CMU-3.jpg',
     fileName: 'CMU-3.svs'
   },
   { 
@@ -22,8 +22,8 @@ const mockSamples = [
     sampleType: 'Mô gan', 
     dateCollected: '24/04/2025', 
     status: 'Đang xử lý',
-    image: '/api/placeholder/80/80',
-    fileName: 'HE-1.svs'
+    image: '/CMU-2.jpg',
+    fileName: 'SMU-2.svs'
   },
 ];
 
@@ -222,7 +222,7 @@ function SampleList() {
                             <img 
                               src={sample.image} 
                               alt={`Mẫu ${sample.sampleType}`} 
-                              className="h-10 w-10 rounded-md object-cover border border-gray-200" 
+                              className="h-16 w-16 rounded-md object-cover border border-gray-200" 
                             />
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-800">
@@ -256,8 +256,8 @@ function SampleList() {
                               Chi tiết
                             </Link>
                             <Link to={`/doctor/samples/${sample.id}/analyze`} className="text-green-600 hover:text-green-900">
-  Phân tích
-</Link>
+                              Phân tích
+                            </Link>
                           </td>
                         </tr>
                       ))}

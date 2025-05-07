@@ -48,8 +48,8 @@ const SampleDetail = () => {
           dateCollected: '24/04/2025', 
           status: 'Đã phân tích',
           image: '/api/placeholder/80/80',
-          fileName: 'SMU-1.svs',
-          dziPath: '/SMU-1_dzi.dzi'  // Đường dẫn mới tới file DZI
+          fileName: 'SMU-2.svs',
+          dziPath: '/SMU-2_dzi.dzi'  // Đường dẫn mới tới file DZI
         },
       ];
       
