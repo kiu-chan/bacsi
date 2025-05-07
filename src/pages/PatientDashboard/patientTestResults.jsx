@@ -15,7 +15,7 @@ const allTestResults = [
     department: "Khoa Ung bướu",
     doctorNote: "Phát hiện tế bào bất thường trong mô phổi, cần tiến hành xét nghiệm bổ sung.",
     confidence: "94%",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-3.jpg"
   },
   {
     id: 2,
@@ -28,7 +28,7 @@ const allTestResults = [
     department: "Khoa Ung bướu",
     doctorNote: "Không phát hiện bất thường trong mẫu mô gan.",
     confidence: "97%",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-2.jpg"
   },
   {
     id: 3,
@@ -41,7 +41,7 @@ const allTestResults = [
     department: "Khoa Nội tiết",
     doctorNote: "Phát hiện nốt tuyến giáp nghi ngờ. Đề nghị tái khám sau 2 tuần.",
     confidence: "89%",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-3.jpg"
   },
   {
     id: 4,
@@ -54,7 +54,7 @@ const allTestResults = [
     department: "Khoa Ung bướu",
     doctorNote: "Mẫu mô vú bình thường, không phát hiện dấu hiệu bất thường.",
     confidence: "98%",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-2.jpg"
   },
   {
     id: 5,
@@ -67,7 +67,7 @@ const allTestResults = [
     department: "Khoa Tiêu hóa",
     doctorNote: "Phát hiện viêm ruột mạn tính, cần theo dõi và điều trị.",
     confidence: "92%",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-3.jpg"
   },
   {
     id: 6,
@@ -80,7 +80,7 @@ const allTestResults = [
     department: "Khoa Da liễu",
     doctorNote: "Mẫu mô da bình thường, không có dấu hiệu bất thường.",
     confidence: "96%",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-2.jpg"
   },
   {
     id: 7,
@@ -93,7 +93,7 @@ const allTestResults = [
     department: "Khoa Niệu",
     doctorNote: "Mô tuyến tiền liệt bình thường, không có dấu hiệu bất thường.",
     confidence: "95%",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-3.jpg"
   },
   {
     id: 8,
@@ -106,7 +106,7 @@ const allTestResults = [
     department: "Khoa Ung bướu",
     doctorNote: "",
     confidence: "",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-2.jpg"
   },
   {
     id: 9,
@@ -119,7 +119,7 @@ const allTestResults = [
     department: "Khoa Huyết học",
     doctorNote: "",
     confidence: "",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-3.jpg"
   }
 ];
 
@@ -545,7 +545,7 @@ function PatientTestResults() {
                       </p>
                       <button className="mt-3 text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center">
                         <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                         </svg>
                         Liên hệ bác sĩ
                       </button>

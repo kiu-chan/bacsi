@@ -24,7 +24,7 @@ const testResults = [
     status: "Đã có kết quả",
     result: "Phát hiện bất thường",
     doctorNote: "Phát hiện tế bào bất thường trong mô phổi, cần tiến hành xét nghiệm bổ sung.",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-3.jpg"
   },
   {
     id: 2,
@@ -34,7 +34,7 @@ const testResults = [
     status: "Đã có kết quả",
     result: "Bình thường",
     doctorNote: "Không phát hiện bất thường trong mẫu mô gan.",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-2.jpg"
   },
   {
     id: 3,
@@ -44,7 +44,7 @@ const testResults = [
     status: "Đã có kết quả",
     result: "Phát hiện bất thường",
     doctorNote: "Phát hiện nốt tuyến giáp nghi ngờ. Đề nghị tái khám sau 2 tuần.",
-    image: "/api/placeholder/300/200"
+    image: "/CMU-3.jpg"
   }
 ];
 
