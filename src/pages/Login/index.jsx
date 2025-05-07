@@ -295,16 +295,6 @@ function Login() {
             </div>
           </div>
 
-          {/* Thêm phần đăng ký với hiệu ứng nhấn mạnh */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Chưa có tài khoản?{' '}
-              <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                Đăng ký ngay
-              </Link>
-            </p>
-          </div>
-
           {/* Thông tin hướng dẫn */}
           <div className="mt-6 bg-blue-50 p-3 rounded-md">
             <h3 className="text-xs font-medium text-blue-800">Lưu ý</h3>
