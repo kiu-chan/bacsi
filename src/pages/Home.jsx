@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 
 // Giả lập dữ liệu
 const recentImages = [
-  { id: 1, name: 'Mẫu mô phổi', patientId: 'BN-2023-001', date: '25/04/2025', status: 'Đã phân tích', image: '/api/placeholder/300/200' },
-  { id: 2, name: 'Mẫu mô gan', patientId: 'BN-2023-005', date: '26/04/2025', status: 'Đang xử lý', image: '/api/placeholder/300/200' },
-  { id: 3, name: 'Mẫu mô tuyến giáp', patientId: 'BN-2023-012', date: '28/04/2025', status: 'Chờ phân tích', image: '/api/placeholder/300/200' },
+  { id: 1, name: 'Mẫu mô phổi', patientId: 'BN-2023-001', date: '25/04/2025', status: 'Đã phân tích', image: '/CMU-3.jpg' },
+  { id: 2, name: 'Mẫu mô gan', patientId: 'BN-2023-005', date: '26/04/2025', status: 'Đang xử lý', image: '/CMU-2.jpg' },
+  { id: 3, name: 'Mẫu mô tuyến giáp', patientId: 'BN-2023-012', date: '28/04/2025', status: 'Chờ phân tích', image: '/CMU-3.jpg' },
 ];
 
 const featuredTools = [
@@ -27,17 +27,9 @@ function Home() {
             <div className="md:w-1/2 mb-8 md:mb-0">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">Hệ thống quản lý và phân tích ảnh mô học</h1>
               <p className="text-lg mb-6">Giải pháp hiện đại giúp bác sĩ và nhà nghiên cứu quản lý, phân tích và chia sẻ ảnh mô học một cách hiệu quả.</p>
-              <div className="flex flex-wrap gap-4">
-                <button className="bg-white text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-blue-100 transition">
-                  Tải lên ảnh mô học
-                </button>
-                <button className="bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg border border-white hover:bg-blue-800 transition">
-                  Xem hướng dẫn
-                </button>
-              </div>
             </div>
             <div className="md:w-1/2">
-              <img src="/api/placeholder/500/300" alt="Minh họa phân tích mô học" className="rounded-lg shadow-lg" />
+              <img src="/CMU-2.jpg" alt="Minh họa phân tích mô học" className="rounded-lg shadow-lg" />
             </div>
           </div>
         </div>
@@ -114,11 +106,6 @@ function Home() {
                     </div>
                   </div>
                 ))}
-              </div>
-              <div className="mt-6 text-center">
-                <button className="bg-blue-600 text-white font-medium py-2 px-6 rounded-lg hover:bg-blue-700 transition">
-                  Tải lên ảnh mô học mới
-                </button>
               </div>
             </div>
           )}

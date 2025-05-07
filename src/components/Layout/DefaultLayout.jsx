@@ -51,12 +51,6 @@ function DefaultLayout({ children }) {
               <Link to="/login" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                 Đăng nhập
               </Link>
-              <Link
-                to="/register"
-                className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition"
-              >
-                Đăng ký
-              </Link>
             </div>
 
             {/* Mobile Menu Button */}
