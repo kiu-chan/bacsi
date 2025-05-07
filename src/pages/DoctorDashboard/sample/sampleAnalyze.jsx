@@ -11,7 +11,7 @@ import AnalysisResults from './AnalysisResults';
 export const availableModels = [
   { 
     id: 'breast-tumor-resnet34.tcga-brca', 
-    name: 'Mô hình phát hiện khối u vú (Breast Tumor Detection)', 
+    name: 'Mô hình phát hiện khối u vú', 
     description: 'Phát hiện và phân loại khối u trong mô vú'
   },
   { 

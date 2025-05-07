@@ -381,20 +381,6 @@ function SampleList() {
             </svg>
             Tải lên hàng loạt
           </Link>
-
-          <Link to="/doctor/samples/import" className="bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg flex items-center hover:bg-indigo-700 transition-colors">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Nhập danh sách
-          </Link>
-
-          <button className="bg-blue-500 text-white font-medium py-2 px-4 rounded-lg flex items-center hover:bg-blue-600 transition-colors">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Xuất danh sách
-          </button>
         </div>
       </div>
     </div>

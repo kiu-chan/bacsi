@@ -18,10 +18,10 @@ const recentAnalyses = [
 
 // Dữ liệu thống kê
 const statistics = {
-  totalPatients: 124,
-  pendingAnalyses: 8,
-  completedAnalyses: 352,
-  abnormalFindings: 47
+  totalPatients: 2,
+  pendingAnalyses: 2,
+  completedAnalyses: 2,
+  abnormalFindings: 1
 };
 
 function DoctorDashboard() {
@@ -306,36 +306,6 @@ function DoctorDashboard() {
               ))}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Quick Access Buttons */}
-      <div className="container mx-auto px-4 mt-6">
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link to="/doctor/patients/new" className="bg-blue-600 text-white font-medium py-2 px-4 rounded-lg flex items-center hover:bg-blue-700 transition-colors">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Tạo bệnh nhân mới
-          </Link>
-          <Link to="/doctor/samples/upload" className="bg-green-600 text-white font-medium py-2 px-4 rounded-lg flex items-center hover:bg-green-700 transition-colors">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-            Tải lên mẫu mô học
-          </Link>
-          <Link to="/doctor/reports/new" className="bg-purple-600 text-white font-medium py-2 px-4 rounded-lg flex items-center hover:bg-purple-700 transition-colors">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            Tạo báo cáo
-          </Link>
-          <Link to="/doctor/ai-tools" className="bg-yellow-500 text-white font-medium py-2 px-4 rounded-lg flex items-center hover:bg-yellow-600 transition-colors">
-            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            Công cụ AI
-          </Link>
         </div>
       </div>
     </div>

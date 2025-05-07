@@ -24,28 +24,6 @@ function DefaultLayout({ children }) {
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link to="/" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                Trang chủ
-              </Link>
-              <Link to="/upload" className="text-gray-600 hover:text-blue-600 text-sm font-medium">
-                Tải lên
-              </Link>
-              <Link to="/analysis" className="text-gray-600 hover:text-blue-600 text-sm font-medium">
-                Phân tích
-              </Link>
-              <Link to="/samples" className="text-gray-600 hover:text-blue-600 text-sm font-medium">
-                Mẫu mô học
-              </Link>
-              <Link to="/reports" className="text-gray-600 hover:text-blue-600 text-sm font-medium">
-                Báo cáo
-              </Link>
-              <Link to="/guide" className="text-gray-600 hover:text-blue-600 text-sm font-medium">
-                Hướng dẫn
-              </Link>
-            </nav>
-
             {/* Login/Register Buttons */}
             <div className="hidden md:flex items-center space-x-3">
               <Link to="/login" className="text-blue-600 hover:text-blue-800 text-sm font-medium">

@@ -46,8 +46,7 @@ function ModelSelection({ selectedModel, onSelectModel, sampleId, isAnalyzing, i
         <div className="bg-gray-50 p-4 rounded-md mb-6">
           <h3 className="text-sm font-medium text-gray-700 mb-2">Lệnh phân tích sẽ được thực hiện:</h3>
           <pre className="bg-gray-900 text-green-400 p-4 rounded-md overflow-x-auto text-sm">
-{`(base) hoangkhanh@192 bacsi % cd wsinfer
-(pytorch-env) (base) hoangkhanh@192 wsinfer % wsinfer run \\
+{`(pytorch-env) (base) hoangkhanh@192 wsinfer % wsinfer run \\
    --wsi-dir ./slides/ \\
    --results-dir ./results/${sampleId}/${selectedModel}/ \\
    --model ${selectedModel}`}
