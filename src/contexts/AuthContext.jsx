@@ -1,9 +1,10 @@
-// Cập nhật file: contexts/AuthContext.jsx
+// contexts/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   authStateListener, 
   loginWithEmailAndPassword, 
+  loginWithGoogle,
   logout, 
   resetPassword,
   updateUserProfile
@@ -26,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Đăng nhập
+  // Đăng nhập bằng email và mật khẩu
   const login = async (email, password) => {
     try {
       setError(null);
@@ -54,6 +55,39 @@ export const AuthProvider = ({ children }) => {
       return { user, profile };
     } catch (error) {
       console.error("Lỗi đăng nhập:", error);
+      setError(error.message);
+      throw error;
+    }
+  };
+  
+  // Thêm phương thức đăng nhập bằng Google
+  const loginWithGoogleAccount = async () => {
+    try {
+      setError(null);
+      const { user, profile } = await loginWithGoogle();
+      
+      // Cập nhật state
+      setCurrentUser(user);
+      setUserProfile(profile);
+      
+      // Kiểm tra vai trò và chuyển hướng tương ứng
+      console.log("Đăng nhập Google thành công với vai trò:", profile?.role);
+      
+      if (profile?.role === 'doctor') {
+        console.log("Chuyển hướng đến /doctor");
+        navigate('/doctor');
+      } else if (profile?.role === 'patient') {
+        console.log("Chuyển hướng đến /patient");
+        navigate('/patient');
+      } else {
+        // Mặc định chuyển về trang chủ nếu không có role
+        console.log("Không xác định được vai trò, chuyển về trang chủ");
+        navigate('/');
+      }
+      
+      return { user, profile };
+    } catch (error) {
+      console.error("Lỗi đăng nhập Google:", error);
       setError(error.message);
       throw error;
     }
@@ -114,6 +148,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     login,
+    loginWithGoogleAccount,
     signOut,
     forgotPassword,
     isDoctor: userProfile?.role === 'doctor',

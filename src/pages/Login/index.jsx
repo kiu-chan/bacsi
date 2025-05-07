@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 function Login() {
-  const { login, error: authError } = useAuth();
+  const { login, loginWithGoogleAccount, error: authError } = useAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -95,6 +95,49 @@ function Login() {
       } finally {
         setLoading(false);
       }
+    }
+  };
+
+  // Xử lý đăng nhập Google đã cập nhật
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      setLoginError('');
+      setDebugInfo(null);
+      
+      console.log("Đang đăng nhập bằng Google...");
+      
+      const result = await loginWithGoogleAccount();
+      console.log("Kết quả đăng nhập Google:", result);
+      
+      setDebugInfo({
+        success: true,
+        message: "Đăng nhập Google thành công! Vui lòng đợi chuyển hướng...",
+        user: result.user?.uid,
+        profile: result.profile,
+      });
+      
+    } catch (error) {
+      console.error("Lỗi đăng nhập Google:", error);
+      
+      setDebugInfo({
+        success: false,
+        message: "Đăng nhập Google thất bại",
+        error: error.message,
+        code: error.code
+      });
+      
+      if (error.code === 'auth/user-not-found') {
+        setLoginError('Tài khoản này chưa được đăng ký trong hệ thống. Vui lòng liên hệ quản trị viên.');
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        setLoginError('Cửa sổ đăng nhập đã bị đóng. Vui lòng thử lại.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        setLoginError('Yêu cầu đăng nhập bị hủy. Vui lòng thử lại.');
+      } else {
+        setLoginError('Đăng nhập Google không thành công. Vui lòng thử lại. ' + error.message);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -220,6 +263,37 @@ function Login() {
               </button>
             </div>
           </form>
+
+          {/* Thêm phần đăng nhập bằng Google */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  Hoặc đăng nhập với
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={loading}
+                className="w-full inline-flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21.8,12.1 C21.8,11.5 21.7,10.9 21.6,10.3 L12,10.3 L12,14.1 L17.5,14.1 C17.3,15.3 16.6,16.3 15.6,17 L15.6,19.3 L19,19.3 C20.9,17.5 21.8,15 21.8,12.1 L21.8,12.1 Z" fill="#4285F4"></path>
+                  <path d="M12,22 C14.7,22 17,21.1 18.7,19.3 L15.3,17 C14.5,17.6 13.3,17.9 12,17.9 C9.3,17.9 7,16.1 6.1,13.7 L2.8,13.7 L2.8,16 C4.4,19.6 8,22 12,22 L12,22 Z" fill="#34A853"></path>
+                  <path d="M6.1,13.7 C5.9,13.1 5.8,12.6 5.8,12 C5.8,11.4 5.9,10.9 6.1,10.3 L6.1,8 L2.8,8 C2.3,9.2 2,10.6 2,12 C2,13.4 2.3,14.8 2.8,16 L6.1,13.7 L6.1,13.7 Z" fill="#FBBC05"></path>
+                  <path d="M12,6.1 C13.4,6.1 14.6,6.6 15.6,7.5 L18.5,4.6 C17,3.2 14.7,2.3 12,2.3 C8,2.3 4.4,4.7 2.8,8.3 L6.1,10.6 C7,8.2 9.3,6.1 12,6.1 L12,6.1 Z" fill="#EA4335"></path>
+                </svg>
+                Đăng nhập với Google
+              </button>
+            </div>
+          </div>
 
           {/* Thêm phần đăng ký với hiệu ứng nhấn mạnh */}
           <div className="mt-6 text-center">
