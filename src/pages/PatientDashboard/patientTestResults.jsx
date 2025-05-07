@@ -218,12 +218,6 @@ function PatientTestResults() {
                 </svg>
                 Quay lại
               </Link>
-              <button className="bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-700 transition flex items-center">
-                <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Liên hệ bác sĩ
-              </button>
             </div>
           </div>
         </div>
@@ -236,14 +230,6 @@ function PatientTestResults() {
           <div className="p-4 border-b border-gray-200">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
               <h2 className="text-lg font-medium text-gray-800 mb-2 md:mb-0">Kết quả xét nghiệm</h2>
-              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                <Link to="/patient/results/upload" className="bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-700 transition flex items-center">
-                  <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  Tải lên kết quả
-                </Link>
-              </div>
             </div>
             
             <div className="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
@@ -543,12 +529,6 @@ function PatientTestResults() {
                       <p className="text-sm text-gray-700">
                         <span className="font-medium">Khoa:</span> {selectedTest.department}
                       </p>
-                      <button className="mt-3 text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center">
-                        <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                        </svg>
-                        Liên hệ bác sĩ
-                      </button>
                     </div>
 
                     <div>
@@ -570,24 +550,6 @@ function PatientTestResults() {
                         )}
                       </ul>
                     </div>
-
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-800 mb-2">Tải xuống & Chia sẻ</h3>
-                      <div className="flex space-x-3">
-                        <button className="bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-700 transition flex items-center">
-                          <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Tải PDF
-                        </button>
-                        <button className="bg-blue-100 text-blue-600 text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-200 transition flex items-center">
-                          <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                          </svg>
-                          Chia sẻ
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 </div>
               )}
@@ -599,11 +561,6 @@ function PatientTestResults() {
               >
                 Đóng
               </button>
-              {selectedTest.status === "Đã có kết quả" && (
-                <button className="bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                  Đặt lịch tái khám
-                </button>
-              )}
             </div>
           </div>
         </div>

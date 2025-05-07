@@ -147,12 +147,6 @@ function PatientMedications() {
                 </svg>
                 Quay lại
               </Link>
-              <button className="bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-md hover:bg-blue-700 transition flex items-center">
-                <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Liên hệ bác sĩ
-              </button>
             </div>
           </div>
         </div>
@@ -426,12 +420,6 @@ function PatientMedications() {
                     <p className="text-sm text-gray-800 mt-1">
                       <span className="font-medium">Chẩn đoán:</span> {selectedPrescription.diagnosis}
                     </p>
-                    <button className="mt-2 text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center">
-                      <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                      </svg>
-                      Liên hệ bác sĩ
-                    </button>
                   </div>
                 </div>
 
@@ -503,12 +491,6 @@ function PatientMedications() {
                       <p className="text-sm text-gray-700">
                         Bạn nên tái khám sau khi kết thúc liệu trình thuốc này để đánh giá hiệu quả điều trị.
                       </p>
-                      <button className="mt-2 text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center">
-                        <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Đặt lịch tái khám
-                      </button>
                     </div>
                   ) : (
                     <p className="text-sm text-gray-700">
